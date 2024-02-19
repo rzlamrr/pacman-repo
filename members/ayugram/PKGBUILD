@@ -1,0 +1,82 @@
+# Maintainer: westpain <homicide@disroot.org>
+# Co-maintainer: DiamivaeBro <assassinssamsa@gmail.com>
+# PKGBUILD version: v2.0
+pkgname=ayugram-desktop-bin
+pkgver=4.14.13
+pkgrel=3
+pkgdesc="Unofficial desktop version of Telegram messaging app with ToS breaking features in mind - Static binaries"
+arch=(x86_64)
+url="https://github.com/AyuGram/AyuGramDesktop"
+license=(GPL3)
+#depends=('desktop-file-utils' 'glib2' 'ffmpeg' 'sqlite' 'qt6-imageformats' 'qt6-svg' 'qt6-wayland' 'protobuf' 'rnnoise' 'openssl' 'hicolor-icon-theme' 'libdbus' 'libx11' 'libglvnd' 'fontconfig')
+makedepends=('chrpath')
+#optdepends=('webkit2gtk: embedded browser features'
+#	    'xdg-desktop-portal: desktop integration')
+provides=('ayugram-desktop')
+conflicts=('ayugram-desktop')
+
+# Archive source
+source=(
+  "https://github.com/rzlamrr/AyuGramDesktop/releases/download/v${pkgver}/AyuGram-Linux-v${pkgver}.tar.gz"
+  "https://raw.githubusercontent.com/AyuGram/AyuGramDesktop/dev/lib/xdg/com.ayugram.desktop.desktop"
+  "https://raw.githubusercontent.com/AyuGram/AyuGramDesktop/dev/lib/xdg/com.ayugram.desktop.metainfo.xml"
+  "com.ayugram.desktop.service"
+  "ayugram128x128.png"
+  "ayugram16x16.png"
+  "ayugram256x256.png"
+  "ayugram32x32.png"
+  "ayugram48x48.png"
+  "ayugram512x512.png"
+  "ayugram64x64.png"
+)
+
+# Checksums
+md5sums=('24d72510b11dc2856f771bc63b88b393'
+         '193a95505fa0c8caac22b6692e99bf01'
+         'e63097cd3951df3c544ff6ebd71c3b95'
+         '4d874cf6c2eecdb5c1d011291aeb807b'
+         '56355bb2dcbcad1cedb038939482d447'
+         '425b06922c51327233bc0bbcd499b3b9'
+         'b7882bded010723897c7ffec394e7334'
+         '0caebd80fa8b5124bbb580b0321322d4'
+         '00146766b23487e841535d76e214cd23'
+         'dda96f182fd95ca16e33092d39411c4e'
+         'ea1c40590908ba4d834d3efc42aa4506')
+
+package() {
+
+	cd "$srcdir/"
+
+	# Creating needed directories
+	install -dm755 "$pkgdir/usr/bin"
+	install -dm755 "$pkgdir/usr/share"
+	install -dm755 "$pkgdir/usr/share/applications"
+	install -dm755 "$pkgdir/usr/share/dbus-1"
+	install -dm755 "$pkgdir/usr/share/icons"
+	install -dm755 "$pkgdir/usr/share/pixmaps"
+	install -dm755 "$pkgdir/usr/share/metainfo"
+
+	# Application executable
+	install -Dm755 "$srcdir/AyuGram" "$pkgdir/usr/bin/ayugram-desktop"
+
+	# Remove RPATH informations
+	chrpath --delete "$pkgdir/usr/bin/ayugram-desktop"
+
+	# Desktop launcher
+	install -Dm644 "$srcdir/ayugram256x256.png" "$pkgdir/usr/share/pixmaps/ayugram.png"
+	install -Dm644 "$srcdir/com.ayugram.desktop.desktop" "$pkgdir/usr/share/applications/com.ayugram.desktop.desktop"
+
+	# DBus service
+	install -Dm644 "$srcdir/com.ayugram.desktop.service" "$pkgdir/usr/share/dbus-1/services/com.ayugram.desktop.service"
+
+	# Metainfo
+	install -Dm644 "$srcdir/com.ayugram.desktop.metainfo.xml" "$pkgdir/usr/share/metainfo/com.ayugram.desktop.metainfo.xml"
+
+	# Icons
+	local icon_size icon_dir
+	for icon_size in 16 32 48 64 128 256 512; do
+		icon_dir="$pkgdir/usr/share/icons/hicolor/${icon_size}x${icon_size}/apps"
+		install -d "$icon_dir"
+		install -m644 "$srcdir/ayugram${icon_size}x${icon_size}.png" "$icon_dir/ayugram.png"
+	done
+}

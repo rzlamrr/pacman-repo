@@ -1,0 +1,35 @@
+name: Build Packages
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install APT packages
+        run: sudo apt install python3 python3-yaml
+
+      - name: Run tests
+        run: ./test.bash
+
+      - name: Build pacman packages
+        uses: pacman-repo-builder/action@0.0.0-rc.64
+        with:
+          command: |
+            set -o errexit -o pipefail -o nounset
+            build-pacman-repo build
+
+      - name: Inspect changed failed build record
+        continue-on-error: true
+        run: cat pacman-repo/failed-build-records/personal-pacman-packages.yaml
+
+      - name: list fir
+        run: |
+          pwd
+          ls
