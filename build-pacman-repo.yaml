@@ -1,6 +1,7 @@
 global-settings:
   container: members
-  repository: repo/dvst.db.tar.gz
+  repository: repo/rzlamrr.db.tar.gz
+  record-failed-builds: failed-build-records.yaml
   dereference-database-symlinks: true
   clean-after-build: true
   packager: 'rzlamrr <rzlamrr.dvst@protonmail.com>'

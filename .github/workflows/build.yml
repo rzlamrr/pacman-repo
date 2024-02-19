@@ -27,9 +27,22 @@ jobs:
 
       - name: Inspect changed failed build record
         continue-on-error: true
-        run: cat pacman-repo/failed-build-records/personal-pacman-packages.yaml
+        run: cat failed-build-records.yaml
 
-      - name: list fir
+      - name: List changes
         run: |
           pwd
           ls
+          echo "================="
+          git status
+
+      - name: Upload packages
+        env:
+          AUTH: ${{ secrets.AUTH }}
+        run: |          
+          git config user.name rzlamrr
+          git config user.email rzlamrr.dvst@protonmail.com
+          git add -v repo/
+          git commit -m "Update by $GITHUB_REPOSITORY@$GITHUB_SHA" --allow-empty
+          git pull origin master --rebase=true # to avoid conflicts due to data races
+          git push https://rzlamrr:$AUTH@github.com/rzlamrr/pacman-repo master
